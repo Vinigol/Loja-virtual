@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casa & Lar — Cadastro de Produtos</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f8f6; color: #1a1a1a; min-height: 100vh; }
+
+  :root {
+    --green-dark: #0F6E56;
+    --green-mid: #1D9E75;
+    --green-light: #9FE1CB;
+    --green-pale: #E1F5EE;
+    --green-deep: #085041;
+    --red: #E24B4A;
+    --red-pale: #FCEBEB;
+    --amber: #BA7517;
+    --amber-pale: #FAEEDA;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --border: rgba(0,0,0,0.1);
+    --surface: #fff;
+    --bg: #f4f8f6;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  .app-header {
+    background: linear-gradient(135deg, #0F6E56 0%, #1D9E75 100%);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .app-header h1 { color: #fff; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .app-header .subtitle { color: #9FE1CB; font-size: 13px; margin-top: 2px; }
+  .header-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+
+  .main-content { padding: 24px; max-width: 960px; margin: 0 auto; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; background: #fff; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 4px; }
+  .tab-btn { flex: 1; padding: 9px 12px; border: none; border-radius: 7px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .tab-btn.active { background: var(--green-mid); color: white; }
+  .tab-btn:hover:not(.active) { background: var(--green-pale); color: var(--green-dark); }
+
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 20px 24px; }
+  .card-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .card-title i { color: var(--green-mid); font-size: 18px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input, .form-group textarea, .form-group select {
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(29,158,117,0.1); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  .form-actions { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+  .btn { padding: 9px 18px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+  .btn-primary { background: var(--green-mid); color: white; }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-secondary { background: var(--bg); color: var(--text-muted); border: 0.5px solid var(--border); }
+  .btn-secondary:hover { background: #e5e7eb; }
+  .btn-danger { background: var(--red-pale); color: var(--red); border: 0.5px solid rgba(226,75,74,0.2); }
+  .btn-danger:hover { background: #f7c1c1; }
+  .btn-icon { padding: 7px; border-radius: var(--radius-sm); border: 0.5px solid var(--border); background: transparent; cursor: pointer; transition: all 0.15s; font-size: 16px; line-height: 1; }
+  .btn-icon.edit { color: var(--green-dark); }
+  .btn-icon.edit:hover { background: var(--green-pale); border-color: var(--green-light); }
+  .btn-icon.delete { color: var(--red); }
+  .btn-icon.delete:hover { background: var(--red-pale); border-color: rgba(226,75,74,0.3); }
+
+  .search-bar { display: flex; gap: 10px; margin-bottom: 16px; }
+  .search-wrap { flex: 1; position: relative; }
+  .search-input { width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; outline: none; background: #fff; transition: border-color 0.2s; font-family: inherit; }
+  .search-input:focus { border-color: var(--green-mid); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; pointer-events: none; }
+
+  .produtos-table { width: 100%; border-collapse: collapse; }
+  .produtos-table th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); padding: 0 12px 10px; border-bottom: 1px solid var(--border); }
+  .produtos-table td { padding: 13px 12px; border-bottom: 0.5px solid rgba(0,0,0,0.05); font-size: 14px; vertical-align: middle; }
+  .produtos-table tr:last-child td { border-bottom: none; }
+  .produtos-table tr:hover td { background: var(--green-pale); }
+
+  .product-img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--green-pale); border: 0.5px solid var(--border); display: block; }
+  .product-img-placeholder { width: 44px; height: 44px; border-radius: 8px; background: var(--green-pale); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--green-mid); font-size: 20px; }
+  .product-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .product-desc { font-size: 12px; color: var(--text-muted); }
+
+  .badge { display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge-cat { background: var(--green-pale); color: var(--green-dark); }
+  .badge-stock-ok { background: #EAF3DE; color: #3B6D11; }
+  .badge-stock-low { background: var(--amber-pale); color: var(--amber); }
+
+  .price-tag { font-size: 15px; font-weight: 700; color: var(--green-dark); }
+  .actions-col { display: flex; gap: 6px; }
+
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+  .empty-state i { font-size: 48px; color: var(--green-light); display: block; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
+  .stat-value.green { color: var(--green-dark); }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #1a1a1a; color: white; padding: 12px 18px; border-radius: var(--radius-sm); font-size: 14px; display: flex; align-items: center; gap: 8px; z-index: 9999; animation: slideIn 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+  .toast.success i { color: var(--green-light); }
+  .toast.error i { color: #F09595; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal-box { background: white; border-radius: 14px; padding: 24px; width: 100%; max-width: 480px; }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .modal-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .main-content { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const CATEGORIAS = ["Limpeza", "Cozinha", "Organização", "Jardim", "Banheiro", "Outros"];
+
+const INITIAL_PRODUCTS = [
+  { id: 1, nome: "Vassoura Multiuso", descricao: "Cerdas macias e resistentes.", preco: 29.90, estoque: 50, categoria: "Limpeza", imagem: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=80" },
+  { id: 2, nome: "Balde Reforçado", descricao: "Capacidade de 15 Litros.", preco: 19.90, estoque: 3, categoria: "Limpeza", imagem: "https://images.unsplash.com/photo-1563453392212-326f5e854473?w=80" },
+  { id: 3, nome: "Frigideira Cerâmica", descricao: "Antiaderente de alta durabilidade.", preco: 89.90, estoque: 18, categoria: "Cozinha", imagem: "https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?w=80" },
+];
+
+function Toast({ msg, type, onClose }) {
+  useEffect(() => { const t = setTimeout(onClose, 2800); return () => clearTimeout(t); }, []);
+  return (
+    <div className={`toast ${type}`}>
+      <i className={`ti ${type === 'success' ? 'ti-circle-check' : 'ti-circle-x'}`}></i>
+      {msg}
+    </div>
+  );
+}
+
+function ConfirmModal({ msg, onConfirm, onCancel }) {
+  return (
+    <div className="modal-overlay">
+      <div className="modal-box">
+        <div className="modal-title">Confirmar exclusão</div>
+        <div className="modal-desc">{msg}</div>
+        <div className="modal-actions">
+          <button className="btn btn-secondary" onClick={onCancel}>Cancelar</button>
+          <button className="btn btn-danger" onClick={onConfirm}><i className="ti ti-trash"></i> Excluir</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const EMPTY_FORM = { nome: "", descricao: "", preco: "", estoque: "", categoria: "Limpeza", imagem: "" };
+
+function ProdutoForm({ initial, onSave, onCancel }) {
+  const [form, setForm] = useState(initial || EMPTY_FORM);
+  const [errors, setErrors] = useState({});
+
+  function validate() {
+    const e = {};
+    if (!form.nome.trim()) e.nome = true;
+    if (!form.preco || isNaN(form.preco) || Number(form.preco) <= 0) e.preco = true;
+    if (form.estoque === "" || isNaN(form.estoque) || Number(form.estoque) < 0) e.estoque = true;
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function handleChange(k, v) { setForm(f => ({ ...f, [k]: v })); setErrors(e => ({ ...e, [k]: false })); }
+
+  function handleSubmit() {
+    if (!validate()) return;
+    onSave({ ...form, preco: parseFloat(form.preco), estoque: parseInt(form.estoque) });
+  }
+
+  const inputStyle = (k) => ({ borderColor: errors[k] ? 'var(--red)' : undefined });
+
+  return (
+    <div className="card">
+      <div className="card-title">
+        <i className={`ti ${initial ? 'ti-edit' : 'ti-plus'}`}></i>
+        {initial ? "Editar Produto" : "Novo Produto"}
+      </div>
+      <div className="form-grid">
+        <div className="form-group full">
+          <label>Nome do Produto *</label>
+          <input placeholder="Ex: Vassoura Multiuso" value={form.nome} style={inputStyle('nome')} onChange={e => handleChange('nome', e.target.value)} />
+        </div>
+        <div className="form-group full">
+          <label>Descrição</label>
+          <textarea placeholder="Descreva as características do produto..." value={form.descricao} onChange={e => handleChange('descricao', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Preço (R$) *</label>
+          <input type="number" step="0.01" min="0" placeholder="0,00" value={form.preco} style={inputStyle('preco')} onChange={e => handleChange('preco', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Estoque *</label>
+          <input type="number" min="0" placeholder="0" value={form.estoque} style={inputStyle('estoque')} onChange={e => handleChange('estoque', e.target.value)} />
+        </div>
+        <div className="form-group">
+          <label>Categoria</label>
+          <select value={form.categoria} onChange={e => handleChange('categoria', e.target.value)}>
+            {CATEGORIAS.map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>URL da Imagem</label>
+          <input placeholder="https://..." value={form.imagem} onChange={e => handleChange('imagem', e.target.value)} />
+        </div>
+      </div>
+      <div className="form-actions">
+        <button className="btn btn-secondary" onClick={onCancel}><i className="ti ti-x"></i> Cancelar</button>
+        <button className="btn btn-primary" onClick={handleSubmit}>
+          <i className={`ti ${initial ? 'ti-device-floppy' : 'ti-plus'}`}></i>
+          {initial ? "Salvar Alterações" : "Cadastrar Produto"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ListaProdutos({ produtos, onEdit, onDelete }) {
+  const [search, setSearch] = useState("");
+  const [filtro, setFiltro] = useState("Todos");
+
+  const filtered = produtos.filter(p => {
+    const q = search.toLowerCase();
+    const matchSearch = p.nome.toLowerCase().includes(q) || p.categoria.toLowerCase().includes(q) || p.descricao.toLowerCase().includes(q);
+    const matchCat = filtro === "Todos" || p.categoria === filtro;
+    return matchSearch && matchCat;
+  });
+
+  const total = produtos.reduce((s, p) => s + p.preco * p.estoque, 0);
+  const baixoEstoque = produtos.filter(p => p.estoque < 5).length;
+
+  return (
+    <>
+      <div className="stats-row">
+        <div className="stat-card">
+          <div className="stat-label">Total de Produtos</div>
+          <div className="stat-value green">{produtos.length}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Valor em Estoque</div>
+          <div className="stat-value">R$ {total.toFixed(2).replace('.', ',')}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Estoque Baixo</div>
+          <div className="stat-value" style={{color: baixoEstoque > 0 ? 'var(--amber)' : 'var(--green-dark)'}}>{baixoEstoque}</div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title"><i className="ti ti-list"></i>Produtos Cadastrados</div>
+        <div className="search-bar">
+          <div className="search-wrap">
+            <i className="ti ti-search search-icon"></i>
+            <input className="search-input" placeholder="Buscar por nome, categoria..." value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+          <select style={{padding:'9px 12px', border:'1.5px solid var(--border)', borderRadius:'var(--radius-sm)', fontSize:13, background:'#fff', cursor:'pointer', outline:'none', fontFamily:'inherit'}} value={filtro} onChange={e => setFiltro(e.target.value)}>
+            <option>Todos</option>
+            {CATEGORIAS.map(c => <option key={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="empty-state">
+            <i className="ti ti-mood-empty"></i>
+            <p>{produtos.length === 0 ? "Nenhum produto cadastrado ainda." : "Nenhum produto encontrado."}</p>
+          </div>
+        ) : (
+          <table className="produtos-table">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Estoque</th>
+                <th>Preço</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(p => (
+                <tr key={p.id}>
+                  <td>
+                    <div style={{display:'flex', alignItems:'center', gap:10}}>
+                      {p.imagem
+                        ? <img src={p.imagem} alt={p.nome} className="product-img" onError={e => { e.target.style.display='none'; }} />
+                        : <div className="product-img-placeholder"><i className="ti ti-photo"></i></div>
+                      }
+                      <div>
+                        <div className="product-name">{p.nome}</div>
+                        <div className="product-desc">{p.descricao || '—'}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span className="badge badge-cat">{p.categoria}</span></td>
+                  <td>
+                    <span className={`badge ${p.estoque < 5 ? 'badge-stock-low' : 'badge-stock-ok'}`}>
+                      {p.estoque < 5 && <i className="ti ti-alert-triangle" style={{fontSize:12, marginRight:3}}></i>}
+                      {p.estoque} un.
+                    </span>
+                  </td>
+                  <td><span className="price-tag">R$ {p.preco.toFixed(2).replace('.', ',')}</span></td>
+                  <td>
+                    <div className="actions-col">
+                      <button className="btn-icon edit" onClick={() => onEdit(p)} title="Editar produto"><i className="ti ti-edit"></i></button>
+                      <button className="btn-icon delete" onClick={() => onDelete(p)} title="Excluir produto"><i className="ti ti-trash"></i></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </>
+  );
+}
+
+function App() {
+  const [tab, setTab] = useState("lista");
+  const [produtos, setProdutos] = useState(INITIAL_PRODUCTS);
+  const [editing, setEditing] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [nextId, setNextId] = useState(4);
+
+  function showToast(msg, type = 'success') { setToast({ msg, type }); }
+
+  function handleSave(form) {
+    if (editing) {
+      setProdutos(ps => ps.map(p => p.id === editing.id ? { ...form, id: editing.id } : p));
+      showToast("Produto atualizado com sucesso!");
+      setEditing(null);
+    } else {
+      setProdutos(ps => [...ps, { ...form, id: nextId }]);
+      setNextId(n => n + 1);
+      showToast("Produto cadastrado com sucesso!");
+    }
+    setTab("lista");
+  }
+
+  function handleEdit(p) { setEditing(p); setTab("form"); }
+  function handleCancelForm() { setEditing(null); setTab("lista"); }
+  function handleDeleteRequest(p) { setConfirmDelete(p); }
+  function handleDeleteConfirm() {
+    setProdutos(ps => ps.filter(p => p.id !== confirmDelete.id));
+    showToast(`"${confirmDelete.nome}" excluído.`, 'error');
+    setConfirmDelete(null);
+  }
+  function handleNewProduct() { setEditing(null); setTab("form"); }
+
+  return (
+    <>
+      <div className="app-header">
+        <div className="header-icon"><i className="ti ti-home-2"></i></div>
+        <div>
+          <h1>Casa &amp; Lar — Gestão de Produtos</h1>
+          <div className="subtitle">Cadastre, edite e gerencie o catálogo de produtos</div>
+        </div>
+      </div>
+
+      <div className="main-content">
+        <div className="tabs">
+          <button className={`tab-btn ${tab === 'lista' ? 'active' : ''}`} onClick={() => { setEditing(null); setTab('lista'); }}>
+            <i className="ti ti-layout-list"></i> Produtos
+          </button>
+          <button className={`tab-btn ${tab === 'form' ? 'active' : ''}`} onClick={handleNewProduct}>
+            <i className="ti ti-circle-plus"></i> {editing ? "Editar Produto" : "Novo Produto"}
+          </button>
+        </div>
+
+        {tab === 'lista' && <ListaProdutos produtos={produtos} onEdit={handleEdit} onDelete={handleDeleteRequest} />}
+        {tab === 'form' && (
+          <ProdutoForm
+            initial={editing ? { ...editing, preco: String(editing.preco), estoque: String(editing.estoque) } : null}
+            onSave={handleSave}
+            onCancel={handleCancelForm}
+          />
+        )}
+      </div>
+
+      {confirmDelete && (
+        <ConfirmModal
+          msg={`Deseja excluir o produto "${confirmDelete.nome}"? Esta ação não pode ser desfeita.`}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
+      {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
